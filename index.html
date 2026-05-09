@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Career Roadmap Generator
+    </title>
+
+    <style>
+
+        body {
+
+            font-family: Arial, sans-serif;
+
+            background: #f0f4f8;
+
+            text-align: center;
+
+            padding: 20px;
+
+        }
+
+        .container {
+
+            max-width: 700px;
+
+            margin: auto;
+
+            padding: 20px;
+
+            background: white;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 4px 6px rgba(0,0,0,0.1);
+
+        }
+
+        input,
+        button {
+
+            width: 100%;
+
+            padding: 15px;
+
+            margin: 10px 0;
+
+            font-size: 18px;
+
+            border-radius: 5px;
+
+            border: 1px solid #ddd;
+
+        }
+
+        button {
+
+            background: #4a6fa5;
+
+            color: white;
+
+            cursor: pointer;
+
+            border: none;
+
+        }
+
+        button:hover {
+
+            background: #3a5a84;
+
+        }
+
+        .skills-box {
+
+            margin-top: 20px;
+
+            text-align: left;
+
+            padding: 20px;
+
+            background: #ffffff;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 4px 6px rgba(0,0,0,0.1);
+
+        }
+
+        .skill-item {
+
+            padding: 10px;
+
+            margin: 5px 0;
+
+            background: #f4f4f9;
+
+            border-radius: 5px;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>
+            Career Roadmap Generator
+        </h1>
+
+        <p>
+            Enter your name and search for a career:
+        </p>
+
+        <input
+            type="text"
+            id="userName"
+            placeholder="Enter your name"
+        >
+
+        <input
+            type="text"
+            id="careerSearch"
+            placeholder="Search career..."
+        >
+
+        <button onclick="getCareerSkills()">
+            Get Skills
+        </button>
+
+        <div
+            id="skillsContainer"
+            class="skills-box"
+            style="display:none;"
+        >
+
+            <h2>
+                Recommended Skills
+            </h2>
+
+            <div id="skillsList"></div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        let userName;
+        let selectedCareer;
+
+        async function getCareerSkills() {
+
+            userName =
+                document.getElementById(
+                    "userName"
+                ).value.trim();
+
+            selectedCareer =
+                document.getElementById(
+                    "careerSearch"
+                ).value.trim();
+
+            if (
+                !userName ||
+                !selectedCareer
+            ) {
+
+                alert(
+                    "Please enter your name and career."
+                );
+
+                return;
+
+            }
+
+            try {
+
+                const response =
+                    await fetch(
+                        "http://127.0.0.1:5000/predict",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                career:
+                                    selectedCareer
+                            })
+
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                console.log(data);
+
+                if (data.error) {
+
+                    alert(data.error);
+
+                    return;
+
+                }
+
+                let skillsHTML = "";
+
+                data.skills.forEach(skill => {
+
+                    skillsHTML += `
+                        <div class="skill-item">
+                            <input type="checkbox">
+                            ${skill}
+                        </div>
+                    `;
+
+                });
+
+                document.getElementById(
+                    "skillsContainer"
+                ).style.display = "block";
+
+                document.getElementById(
+                    "skillsList"
+                ).innerHTML = skillsHTML;
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Failed to fetch skills."
+                );
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
